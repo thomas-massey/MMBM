@@ -1,13 +1,13 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "MMBM",
+  "name": "Multiple Minecraft Bot Manager",
+  "description": "A bot manager for multiple minecraft accounts",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
-  "updateUrl": "",
-  "authorList": ["ExampleDude"],
+  "updateUrl": "https://api.github.com/repos/thomas-massey/MMBM/releases/latest",
+  "authorList": ["Leftmostchain21"],
   "credits": "The Forge and FML guys, for making this example",
   "logoFile": "",
   "screenshots": [],
