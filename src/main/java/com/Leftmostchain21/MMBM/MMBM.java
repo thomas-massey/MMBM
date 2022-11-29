@@ -33,12 +33,12 @@ public class MMBM {
         // If not, then update the mod using the latest GitHub release
         // If the mod is the latest release, then continue
 
-        // We will use a info.txt file to store the current version of the mod
-        // First check if the info.txt file exists
+        // We will use a info.json file to store the current version of the mod
+        // First check if the info.json file exists
         // If it does not exist, then create it and write the current version of the mod to it
         try {
-            System.out.println("Checking if info.txt exists...");
-            File infoFile = new File("config/info.txt");
+            System.out.println("Checking if info.json exists...");
+            File infoFile = new File("config/info.json");
             // Print the working directory
             if (infoFile.createNewFile()) {
                 System.out.println("Info file created: " + infoFile.getName());
@@ -53,11 +53,13 @@ public class MMBM {
                     sb.append(input);
                 }
                 br.close();
-                JsonArray json = new JsonArray();
-                System.out.println("Hello");
-
-
-                // Now parse the JSON file to get the download URL
+                String latestRelease = sb.toString().split(",")[5];
+                System.out.println("Latest release: " + latestRelease);
+                // Now write the latest release to the info.txt file
+                FileWriter infoWriter = new FileWriter("config/info.json");
+                infoWriter.write(latestRelease);
+                infoWriter.close();
+                System.out.println("Wrote latest release to info.txt");
 
             } else {
                 System.out.println("Info file already exists.");
