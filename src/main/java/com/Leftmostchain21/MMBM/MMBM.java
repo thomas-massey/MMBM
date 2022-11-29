@@ -1,6 +1,5 @@
 package com.Leftmostchain21.MMBM;
 
-import com.google.gson.JsonArray;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -33,7 +32,7 @@ public class MMBM {
         // If not, then update the mod using the latest GitHub release
         // If the mod is the latest release, then continue
 
-        // We will use a info.json file to store the current version of the mod
+        // We will use an info.json file to store the current version of the mod
         // First check if the info.json file exists
         // If it does not exist, then create it and write the current version of the mod to it
         try {
