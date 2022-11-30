@@ -1,15 +1,15 @@
 package com.Leftmostchain21.MMBM;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -36,33 +36,79 @@ public class MMBM {
         // First check if the info.json file exists
         // If it does not exist, then create it and write the current version of the mod to it
         try {
+            // Get GitHub release info
+
+            URL ReleaseURL = new URL("https://api.github.com/repos/thomas-massey/MMBM/releases/latest");
+            HttpURLConnection connection = (HttpURLConnection) ReleaseURL.openConnection();
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String input;
+            StringBuilder sb = new StringBuilder();
+            while ((input = br.readLine()) != null) {
+                sb.append(input);
+            }
+            br.close();
+
             System.out.println("Checking if info.json exists...");
             File infoFile = new File("config/info.json");
             // Print the working directory
             if (infoFile.createNewFile()) {
                 System.out.println("Info file created: " + infoFile.getName());
-                // Now download the latest release of the mod from GitHub and set the info.txt file to the latest version
-                System.out.println("Downloading latest release of the mod from GitHub");
-                URL ReleaseURL = new URL("https://api.github.com/repos/thomas-massey/MMBM/releases/latest");
-                HttpURLConnection connection = (HttpURLConnection) ReleaseURL.openConnection();
-                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String input;
-                StringBuilder sb = new StringBuilder();
-                while ((input = br.readLine()) != null) {
-                    sb.append(input);
-                }
-                br.close();
-                String latestRelease = sb.toString().split(",")[5];
-                System.out.println("Latest release: " + latestRelease);
-                // Now write the latest release to the info.txt file
+                // Add some object to the info file
                 FileWriter infoWriter = new FileWriter("config/info.json");
-                infoWriter.write(latestRelease);
+                infoWriter.write("{\n\t\"version\": \"" + "UNKNOWN" + "\"\n}");
                 infoWriter.close();
-                System.out.println("Wrote latest release to info.txt");
-
             } else {
                 System.out.println("Info file already exists.");
             }
+
+            // Compare the current version of the mod to the latest version of the mod
+            JsonParser parser = new JsonParser();
+            JsonObject gitInfo = parser.parse(sb.toString()).getAsJsonObject();
+            String latestRelease = gitInfo.get("id").getAsString();
+            // Read the info.json file
+            String currentVersion = null;
+            try {
+                // Read the info.json file
+                Object obj = new JsonParser().parse(new FileReader("config/info.json"));
+                JsonObject infoObject = (JsonObject) obj;
+                currentVersion = infoObject.get("version").getAsString();
+                System.out.println("Current version: " + currentVersion);
+                System.out.println("Latest version: " + latestRelease);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (latestRelease.toString() != currentVersion.toString()) {
+                // Now download the latest release of the mod from GitHub and set the info.txt file to the latest version
+                System.out.println("Downloading latest release of the mod from GitHub");
+                System.out.println(gitInfo.get("assets").getAsJsonArray().get(0).getAsJsonObject().get("browser_download_url").getAsString());
+                try {
+                    URL downloadURL = new URL(gitInfo.get("assets").getAsJsonArray().get(0).getAsJsonObject().get("browser_download_url").getAsString());
+                    File new_file = new File("MMBM-" + gitInfo.get("name").getAsString() + ".jar");
+                    FileUtils.copyURLToFile(downloadURL, new_file);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // Now update the info.json file
+                // Delete the old info.json version tag
+                JsonObject versionObject = parser.parse(new FileReader("config/info.json")).getAsJsonObject();
+                versionObject.remove("version");
+                // Add the new version tag
+                versionObject.addProperty("version", latestRelease);
+                // Write the new version tag to the info.json file
+                FileWriter infoWriter = new FileWriter("config/info.json");
+                infoWriter.write(versionObject.toString());
+                infoWriter.close();
+                System.out.println("Updating info.json file");
+                // Now exit the program
+                System.exit(0);
+            } else {
+                // Continue
+                System.out.println("The mod is up to date!");
+            }
+
+
+
+
         } catch (Exception e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
