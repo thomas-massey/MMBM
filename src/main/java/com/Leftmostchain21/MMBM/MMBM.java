@@ -19,7 +19,7 @@ public class MMBM {
     public static final String NAME = "MMBM";
     public static final String VERSION = "1.0";
 
-    private static Logger logger;
+    public static Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -99,7 +99,40 @@ public class MMBM {
                 infoWriter.write(versionObject.toString());
                 infoWriter.close();
                 System.out.println("Updating info.json file");
-                // Now exit the program
+                // Now detect the OS
+                String OS = System.getProperty("os.name").toLowerCase();
+                if (OS.contains("win")) {
+                    // Windows
+                    System.out.println("Windows detected");
+                    // Now run the batch file
+                    try {
+                        Process p = Runtime.getRuntime().exec("cmd /c ping localhost -n 6 > nul && del MMBM-" + gitInfo.get("name").getAsString() + ".jar");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (OS.contains("mac")) {
+                    // Mac
+                    System.out.println("Mac detected");
+                    // Now run the bash file
+                    try {
+                        Process p = Runtime.getRuntime().exec("bash -c \"sleep 6 && rm MMBM-" + gitInfo.get("name").getAsString() + ".jar\"");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (OS.contains("nix") || OS.contains("nux") || OS.contains("aix")) {
+                    // Unix
+                    System.out.println("Unix detected");
+                    // Now run the bash file
+                    try {
+                        Process p = Runtime.getRuntime().exec("bash -c \"sleep 6 && rm MMBM-" + gitInfo.get("name").getAsString() + ".jar\"");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    // Unknown
+                    System.out.println("Unknown OS detected, please manually delete the old mod jar file");
+                }
+                // Now exit the game
                 System.exit(0);
             } else {
                 // Continue
